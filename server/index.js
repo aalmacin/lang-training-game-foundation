@@ -2,7 +2,7 @@ import http from "http";
 import express from "express";
 import {Server} from "socket.io";
 import cors from "cors";
-import {createMessagesTable} from "./db.js";
+import {createMessagesTable, insertMessage, getMessages} from "./db.js";
 
 const app = express();
 
@@ -16,10 +16,20 @@ const io = new Server(server, {
     }
 });
 
+const updateMessageList = (socket) => {
+    getMessages().then((messages) => {
+        // Broadcast using io
+        io.emit("received_message", messages)
+    });
+}
+
 io.on('connection', (socket) => {
     console.log(`User Connected: ${socket.id}`);
-    socket.on("send_message", () => {
-
+    updateMessageList(socket);
+    socket.on("send_message", ({message, sender}) => {
+        insertMessage(message, sender).then(() => {
+            updateMessageList(socket);
+        }).catch(err => console.error(err.message))
     });
 });
 
