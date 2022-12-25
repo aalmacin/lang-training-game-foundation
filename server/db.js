@@ -3,7 +3,7 @@ import sqlite3 from "sqlite3"
 
 export const connectDB = () => {
     const sqlite = sqlite3.verbose();
-    return new sqlite.Database('./db/chat.db', (err) => {
+    return new sqlite.Database('./db/game.db', (err) => {
         if (err) {
             console.error(err.message);
         }
@@ -18,17 +18,17 @@ export const closeDB = (db) => {
     }))
 }
 
-export const createMessagesTable = () => {
+export const createGuessesTable = () => {
     const db = connectDB()
     db.serialize(() => {
-        db.run(`CREATE TABLE IF NOT EXISTS messages
+        db.run(`CREATE TABLE IF NOT EXISTS guesses
                 (
                     id
                     INTEGER
                     PRIMARY
                     KEY
                     AUTOINCREMENT,
-                    message
+                    guess
                     TEXT
                     NOT
                     NULL,
@@ -38,21 +38,21 @@ export const createMessagesTable = () => {
                     NULL
                 )`, (err) => {
             if (err) {
-                console.error("getMessages failed")
+                console.error("getGuesses failed")
                 console.error(err.message);
             }
-            console.log('Created messages table.');
+            console.log('Created guesses table.');
         })
     })
     closeDB(db)
 }
 
-export async function insertMessage(message, sender) {
+export async function insertGuess(guess, sender) {
     return new Promise((resolve, reject) => {
         const db = connectDB()
         db.serialize(() => {
-            db.run(`INSERT INTO messages (message, sender)
-                    VALUES ('${message}', '${sender}')`,
+            db.run(`INSERT INTO guesses (guess, sender)
+                    VALUES ('${guess}', '${sender}')`,
                 (result, err) => {
                     if (err) {
                         reject(err)
@@ -65,15 +65,14 @@ export async function insertMessage(message, sender) {
     })
 }
 
-export async function getMessages() {
+export async function getGuesses() {
     return new Promise(
         (resolve, reject) => {
             const db = connectDB()
             db.serialize(() => {
-                db.all(`SELECT *
-                        FROM messages`, (err, rows) => {
+                db.all(`SELECT * FROM guesses`, (err, rows) => {
                     if (err) {
-                        console.error("getMessages failed")
+                        console.error("getGuesses failed")
                         reject(err.message)
                         throw err;
                     }

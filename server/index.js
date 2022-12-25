@@ -2,12 +2,12 @@ import http from "http";
 import express from "express";
 import {Server} from "socket.io";
 import cors from "cors";
-import {createMessagesTable, insertMessage, getMessages} from "./db.js";
+import {createGuessesTable, insertGuess, getGuesses} from "./db.js";
 
 const app = express();
 
 app.use(cors());
-createMessagesTable();
+createGuessesTable();
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -16,20 +16,20 @@ const io = new Server(server, {
     }
 });
 
-const updateMessageList = (socket) => {
-    getMessages().then((messages) => {
+const updateGuessList = (socket) => {
+    getGuesses().then((guesses) => {
         // Broadcast using io
-        io.emit("received_message", messages)
+        io.emit("received_guess", guesses)
     });
 }
 
 io.on('connection', (socket) => {
     console.log(`User Connected: ${socket.id}`);
-    updateMessageList(socket);
-    socket.on("send_message", ({message, sender}) => {
-        insertMessage(message, sender).then(() => {
-            updateMessageList(socket);
-        }).catch(err => console.error(err.message))
+    updateGuessList(socket);
+    socket.on("send_guess", ({guess, sender}) => {
+        insertGuess(guess, sender).then(() => {
+            updateGuessList(socket);
+        }).catch(err => console.error(err.guess))
     });
 });
 
