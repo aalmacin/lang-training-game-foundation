@@ -10,9 +10,17 @@ app.use(cors());
 createGuessesTable();
 
 const server = http.createServer(app);
+const whitelist = ["http://localhost:3000", "http://192.168.234.162:3000"];
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:3000', methods: ['GET', 'POST']
+        origin: (origin, callback) => {
+            if (whitelist.indexOf(origin) !== -1) {
+                callback(null, true)
+            } else {
+                callback(new Error('Not allowed by CORS'))
+            }
+        },
+        methods: ['GET', 'POST']
     }
 });
 
@@ -29,7 +37,7 @@ io.on('connection', (socket) => {
     socket.on("send_guess", ({guess, sender}) => {
         insertGuess(guess, sender).then(() => {
             updateGuessList(socket);
-        }).catch(err => console.error(err.guess))
+        }).catch(err => console.error(err.message))
     });
 });
 

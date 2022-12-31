@@ -70,7 +70,8 @@ export async function getGuesses() {
         (resolve, reject) => {
             const db = connectDB()
             db.serialize(() => {
-                db.all(`SELECT * FROM guesses`, (err, rows) => {
+                db.all(`SELECT *
+                        FROM guesses`, (err, rows) => {
                     if (err) {
                         console.error("getGuesses failed")
                         reject(err.message)
@@ -82,4 +83,22 @@ export async function getGuesses() {
             closeDB(db)
         }
     );
+}
+
+export function seedSentences() {
+    const db = connectDB()
+    const sentences = [
+        ''
+    ];
+    db.serialize(() => {
+        db.run(`INSERT INTO sentences (text)
+                VALUES ('I am a sentence.')`, (err) => {
+            if (err) {
+                console.error("seedSentences failed")
+                console.error(err.message);
+            }
+            console.log('Seeded sentences table.');
+        })
+    })
+    closeDB(db)
 }
