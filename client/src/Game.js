@@ -15,6 +15,13 @@ export function Game() {
             setSocket(io('http://localhost:3001'))
         }
     }, [socket])
+
+    useEffect(() => {
+        if (username !== "AJ") {
+            socket.emit("player_join", username);
+        }
+    }, [username])
+
     const clickHandler = () => {
         socket.emit('send_guess', {
             guess,

@@ -102,3 +102,22 @@ export function seedSentences() {
     })
     closeDB(db)
 }
+export async function getSentences() {
+    return new Promise(
+        (resolve, reject) => {
+            const db = connectDB()
+            db.serialize(() => {
+                db.all(`SELECT *
+                        FROM sentences`, (err, rows) => {
+                    if (err) {
+                        console.error("getSentences failed")
+                        reject(err.message)
+                        throw err;
+                    }
+                    resolve(rows)
+                })
+            })
+            closeDB(db)
+        }
+    );
+}

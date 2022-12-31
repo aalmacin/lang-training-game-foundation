@@ -11,6 +11,7 @@ export const User = () => {
     const clickHandler = () => {
         dispatch({type: SET_USERNAME, payload: username});
         localStorage.setItem("username", username);
+
     }
 
     return (

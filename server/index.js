@@ -31,8 +31,18 @@ const updateGuessList = (socket) => {
     });
 }
 
+
 io.on('connection', (socket) => {
     console.log(`User Connected: ${socket.id}`);
+    updateGuessList(socket);
+    socket.on("send_guess", ({guess, sender}) => {
+        insertGuess(guess, sender).then(() => {
+            updateGuessList(socket);
+        }).catch(err => console.error(err.message))
+    });
+});
+
+io.on('player_join', (socket) => {
     updateGuessList(socket);
     socket.on("send_guess", ({guess, sender}) => {
         insertGuess(guess, sender).then(() => {
